@@ -1,27 +1,15 @@
-node("ssh") {
-    try {
-        withCredentials([
-            string(credentialsId: 'az_vault_ansible_username_secret', variable: 'USERNAME'), 
-            string(credentialsId: 'az_vault_ansible_ssh_privkey_secret', variable: 'PRIVKEY'),
-            string(credentialsId: 'az_vault_ansible_ssh_password_secret', variable: 'PASSWORD')]) {
-
-            stage('Azure Login') {
-                withCredentials([azureServicePrincipal('dso_sp')]) {
-                    config = getDsoConfig(env.SERVER_ENVIRONMENT)
-                    sh 'az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET -t $AZURE_TENANT_ID'
-                    sh "az account set --subscription ${config.azure_fng_subscription_id}"
-                }
-            }
-        }
-    }
-
-    catch (err) {
-    // If there was an exception thrown, the build failed
-    currentBuild.currentResult = "FAILED"
-	
-    finally {
-        stage("Send Slack notification") {  
-           postBuildNotifySlack(slack_channel)
-        }
-    }
+pipeline {
+	agent {
+		stages {
+			stage('Save image as tar') {
+				sh 'docker save hub-node:latest -o hub-node.tar'
+			}
+			stage('Transfer to host') {
+				sh 'scp file yo'
+			}
+			stage('Import to host's docker daemon') {
+				sh 'docker import hub-node.tar'
+			}
+		}
+	}
 }
