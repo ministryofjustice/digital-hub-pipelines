@@ -1,6 +1,21 @@
-def job_name = "Digital Hub - transfer docker images to sites"
-def slurper = new groovy.json.JsonSlurper()
-def buildMatrix = readFileFromWorkspace("seedJob","${System.getenv("SERVER_ENVIRONMENT")}/hub_image_transfer.json")
-def job_script = readFileFromWorkspace("seedJob","${System.getenv("SERVER_ENVIRONMENT")}/hub_image_transfer.pipeline_script")
+def job_script = readFileFromWorkspace("seedJob","devtest/hub_image_transfer.pipeline_script")
 
-// Stub
+pipelineJob("hub_image_transfer") {
+    description("Copy hub docker images to hub hosts")
+    logRotator {
+        numToKeep(10)
+    }
+    configure { Node project ->
+//    project / authToken("start_cdecopy")
+    }
+    concurrentBuild(false)
+    parameters {
+        stringParam('hostname', '', 'Deployment host')
+    }
+    definition {
+        cps {
+            script(job_script)
+            sandbox()
+        }
+    }
+}
