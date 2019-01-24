@@ -8,8 +8,8 @@ pipelineJob("hub_image_transfer") {
     concurrentBuild(false)
     parameters {
     	    choice(name: 'Prison', choices: ['Staging', 'Berwyn', 'Wayland'], description: 'Choose a site to deploy the hub to')
-       	    choice(name: 'Image', choices: ['Frontend', 'CMS', 'DB', 'Stats'], description: 'Choose a component to upgrade')
-        }
+//       	    choice(name: 'Image', choices: ['Frontend', 'CMS', 'DB', 'Stats'], description: 'Choose a component to upgrade')
+    }
     env {
 		
     	
