@@ -8,8 +8,9 @@ pipelineJob("hub_image_transfer") {
       }
 
       parameters {
-		  choice(name: 'Prison', choices: ['Staging', 'Berwyn', 'Wayland'], description: 'Choose a site to deploy the hub to')
-          choice(choices: ['Frontend', 'CMS', 'DB', 'Stats'], description: 'Choose a component to upgrade', name: 'Image')
+      choiceParam('OPTION', ['option 1 (default)', 'option 2', 'option 3'])
+//		  choice(name: 'Prison', choices: ['Staging', 'Berwyn', 'Wayland'], description: 'Choose a site to deploy the hub to')
+//          choice(choices: ['Frontend', 'CMS', 'DB', 'Stats'], description: 'Choose a component to upgrade', name: 'Image')
       }
       properties {
         disableConcurrentBuilds()
