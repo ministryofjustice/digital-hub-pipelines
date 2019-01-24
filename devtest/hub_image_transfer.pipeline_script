@@ -1,6 +1,28 @@
 pipeline {
+	switch(params.Image) {
+	  case "Frontend":
+	    image = "hub-node"
+	    break
+	  case "CMS":
+	    result = "hub-drupal"
+	    break
+	  default:
+	    echo "Uh oh, what's that input?!"
+	    exit
+	}
 	agent {
 		stages {
+			stage('Clone Digital Hub repository') {
+				git 'git@github.com:ministryofjustice/digital-hub.git'
+			}
+			stage('echo guff') {
+				echo "${para}"
+			}
+
+
+/*			stage('Pull') {
+				sh 'docker pull hub-node:latest -o hub-node.tar'
+			}
 			stage('Save image as tar') {
 				sh 'docker save hub-node:latest -o hub-node.tar'
 			}
@@ -9,7 +31,7 @@ pipeline {
 			}
 			stage('Import to host's docker daemon') {
 				sh 'docker import hub-node.tar'
-			}
+			}*/
 		}
 	}
 }

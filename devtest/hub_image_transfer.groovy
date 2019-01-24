@@ -5,12 +5,14 @@ pipelineJob("hub_image_transfer") {
     logRotator {
         numToKeep(10)
     }
-    configure { Node project ->
-//    project / authToken("start_cdecopy")
-    }
     concurrentBuild(false)
     parameters {
-        stringParam('hostname', '', 'Deployment host')
+	    choice(name: 'Prison', choices: ['Staging', 'Berwyn', 'Wayland'], description: 'Choose a site to deploy the hub to')
+   	    choice(name: 'Image', choices: ['Frontend', 'CMS', 'DB', 'Stats'], description: 'Choose a component to upgrade')
+    }
+    env {
+		
+    	
     }
     definition {
         cps {
