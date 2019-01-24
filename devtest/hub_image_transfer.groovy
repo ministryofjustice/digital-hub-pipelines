@@ -6,10 +6,6 @@ pipelineJob("hub_image_transfer") {
         numToKeep(10)
     }
     concurrentBuild(false)
-    parameters {
-//   	    choiceParam(name: 'Prison', choices: ['Staging', 'Berwyn', 'Wayland'], description: 'Choose a site to deploy the hub to')
-   	    [choice(choices: ['Frontend', 'CMS', 'DB', 'Stats'], description: 'Choose a component to upgrade', name: 'Image')]
-    }
 
 
 /*      parameters {
@@ -26,6 +22,11 @@ pipelineJob("hub_image_transfer") {
 		
     	
     }
+    parameters {
+//   	    choiceParam(name: 'Prison', choices: ['Staging', 'Berwyn', 'Wayland'], description: 'Choose a site to deploy the hub to')
+   	    [choice(choices: ['Frontend', 'CMS', 'DB', 'Stats'], description: 'Choose a component to upgrade', name: 'Image')]
+    }
+
     definition {
         cps {
             script(job_script)
