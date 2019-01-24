@@ -20,3 +20,4 @@ pipelineJob("hub_image_transfer") {
           script(job_script)
         }
       }
+}
