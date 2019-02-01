@@ -8,7 +8,7 @@ pipelineJob("Transfer new assets from Staging to a prison before a release") {
       }
 
       parameters {
-      choiceParam('Prison', [Berwyn', 'Wayland'])
+      choiceParam('Prison', ['Berwyn', 'Wayland'])
       }
       properties {
         disableConcurrentBuilds()
