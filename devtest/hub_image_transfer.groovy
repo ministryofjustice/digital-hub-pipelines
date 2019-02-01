@@ -1,7 +1,7 @@
 def job_script = readFileFromWorkspace("seedJob","devtest/hub_image_transfer.pipeline_script")
 
 
-pipelineJob("hub_image_transfer") {
+pipelineJob("Transfer new docker images to a prison before a release") {
     description("Copy hub docker images to hub hosts")
       logRotator {
         numToKeep(10)
