@@ -1,6 +1,13 @@
 node {
-	stage('Asset transfer') {
-		echo "Moving files to ${params.Prison}"
-		sh "ssh -R 50000:${params.Prison}.mycloudgateway.co.uk:22 digital-hub-stage.hmpps.dsd.io 'rsync -n -riP --ignore-existing -e "ssh -p50000 -o PasswordAuthentication=yes -oStrictHostKeyChecking=no" /content/moj_dhub_prod001_app/usr/share/nginx/html/moj_be/sites/default/files/ root@localhost:/content/moj_dhub_prod001_app/usr/share/nginx/html/moj_be/sites/default/files/'"
+	withCredentials([sshUserPrivateKey(credentialsId: "29c48f15-66b3-4a8c-b391-60782af72251", keyFileVariable: 'keyfile')]) {
+		stage('Asset transfer') {
+			echo "Moving files to ${params.Prison}"
+			
+			sh """
+				ssh -i "${keyfile}" -oStrictHostKeyChecking=no -R 50000:${params.Prison}.mycloudgateway.co.uk:22 digital-hub-stage.hmpps.dsd.io 'rsync -n -riP --ignore-existing -e "ssh -p50000 -oStrictHostKeyChecking=no" /content/moj_dhub_prod001_app/usr/share/nginx/html/moj_be/sites/default/files/ root@localhost:/content/moj_dhub_prod001_app/usr/share/nginx/html/moj_be/sites/default/files/'   
+			"""		
+			
+			echo "Moved files to ${params.Prison}"
+		}
 	}
 }

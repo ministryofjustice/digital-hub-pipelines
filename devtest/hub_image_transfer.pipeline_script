@@ -1,52 +1,13 @@
-node("docker-client") {
-	image = "Default image"
-	url = "default image"
-    
-			stage('Clone Digital Hub repository') {
-				script {
-					switch(params.Image) {
-					  case "Frontend":
-					    image = "hub-node"
-					    break
-					  case "CMS":
-					    image = "hub-drupal"
-					    break
-					  default:
-					    echo "No inputs for Image detected?"
-					    break
-					}
-					switch(params.Prison) {
-					  case "Staging":
-					    url = "staging"
-					    break
-					  case "Wayland":
-					    url = "wayland"
-					    break
-					  case "Berwyn":
-					    url = "berwyn"
-					    break
-					  default:
-					    echo "No inputs for Prison detected?"
-					    break
-					}
-				
-				//git 'git@github.com:ministryofjustice/digital-hub.git'
-				}
-			}
-			stage('echo guff') {
-				echo "${params.Image} / ${params.Prison}"
-				echo "${image} / ${url}"
-			}
-			stage('Pull') {
-				sh "docker pull ${image}:latest"
-			}
-			stage('Save image as tar') {
-				sh "docker save ${image}:latest -o ${image}.tar"
-			}
-			/*stage('Transfer to host') {
-				sh 'scp file yo'
-			}
-			stage('Import to host's docker daemon') {
-				sh 'docker import hub-node.tar'
-			}*/
+node {
+	withCredentials([sshUserPrivateKey(credentialsId: "29c48f15-66b3-4a8c-b391-60782af72251", keyFileVariable: 'keyfile')]) {
+		stage('Asset transfer') {
+			echo "Moving ${params.Component} to ${params.Prison}"
+			
+			sh """
+				docker save ${params.Component} | ssh -i "${keyfile}" -oStrictHostKeyChecking=no ${params.Prison}.mycloudgateway.co.uk docker load'   
+			"""		
+			
+			echo "Moved ${params.Component} to ${params.Prison}"
 		}
+	}
+}
