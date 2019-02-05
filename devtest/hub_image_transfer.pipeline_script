@@ -1,13 +1,61 @@
-node {
-	withCredentials([sshUserPrivateKey(credentialsId: "29c48f15-66b3-4a8c-b391-60782af72251", keyFileVariable: 'keyfile')]) {
-		stage('Asset transfer') {
-			echo "Moving ${params.Component} to ${params.Prison}"
-			
-			sh """
-				docker save ${params.Component} | ssh -i "${keyfile}" -oStrictHostKeyChecking=no ${params.Prison}.mycloudgateway.co.uk docker load'   
-			"""		
-			
-			echo "Moved ${params.Component} to ${params.Prison}"
+node("docker-client") {
+	image = "hub-node"
+			stage('Clone Digital Hub repository') {
+				script {
+					switch(params.Component) {
+					  case "Frontend":
+					    image = "mojdigitalstudio/digital-hub-node"
+					    break
+					  case "CMS":
+					    image = "mojdigitalstudio/digital-hub-be"
+					    break
+					  case "DB":
+					    image = "mojdigitalstudio/digital-hub-db"
+					    break
+					  case "Stats":
+					    image = "matomo:3-apache"
+					    break
+					  case "Stats DB":
+					    image = "mariadb"
+					    break
+					  default:
+					    echo "No inputs for Component detected"
+					    break
+					}
+					switch(params.Prison) { // This shouldn't really be a switch, when we're feeling like being better people let's replace it with a downcase function..
+					  case "Staging":
+					    url = "staging"
+					    break
+					  case "Wayland":
+					    url = "wayland"
+					    break
+					  case "Berwyn":
+					    url = "berwyn"
+					    break
+					  default:
+					    echo "No inputs for Prison detected"
+					    break
+					}
+				}
+			}
+			stage('debug') {
+				echo "${params.Component} / ${params.Prison}"
+				echo "${image} / ${url}"
+			}
+			withCredentials([
+			                string(credentialsId: 'az_vault_dockerhub_username_secret', variable: 'DOCKER_USER'),
+			                string(credentialsId: 'az_vault_dockerhub_password_secret', variable: 'DOCKER_PASS'),
+			                sshUserPrivateKey(credentialsId: "29c48f15-66b3-4a8c-b391-60782af72251", keyFileVariable: 'keyfile')
+			]) {
+			    stage('Asset transfer') {
+					echo "Moving ${image} to ${params.Prison}"
+					
+					sh """
+					    docker -H tcp://10.0.1.4:2375 login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+						docker -H tcp://10.0.1.4:2375 save ${image} | ssh -i "${keyfile}" -oStrictHostKeyChecking=no root@${params.Prison}.mycloudgateway.co.uk "docker load"
+					"""		
+					
+					echo "Moved ${params.Component} to ${params.Prison}"
+				}
+			}
 		}
-	}
-}
