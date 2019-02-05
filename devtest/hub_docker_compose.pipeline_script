@@ -1,0 +1,19 @@
+node {
+	stage('Releasing a new container to a prison') {
+		prison = params.Prison.toLowerCase()
+		
+		withCredentials([
+		sshUserPrivateKey(credentialsId: "29c48f15-66b3-4a8c-b391-60782af72251", keyFileVariable: 'keyfile')
+	]) {
+	    	stage('Asset transfer') {
+				git branch: "master", credentialsId: 'github_deploy_key', url: 'git@github.com:ministryofjustice/digital-hub.git'
+				echo "Restarting containers in ${prison}"
+				sh """	
+					scp -i "${keyfile}" -oStrictHostKeyChecking=no docker-compose.yml root@${prison}.mycloudgateway.co.uk:
+				    ssh -i "${keyfile}" -oStrictHostKeyChecking=no root@${prison}.mycloudgateway.co.uk "cat docker-compose.yml"
+				"""	
+				echo "Restarted containers in ${prison}"
+			}
+		}
+	}
+}
