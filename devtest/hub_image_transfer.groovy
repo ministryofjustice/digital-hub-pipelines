@@ -9,7 +9,7 @@ pipelineJob("Transfer new docker images to a prison before a release") {
 
       parameters {
       choiceParam('Prison', ['Staging', 'Berwyn', 'Wayland'])
-      choiceParam('Component', ['Frontend', 'CMS', 'DB', 'Stats'])
+      choiceParam('Component', ['Frontend', 'CMS', 'DB', 'Stats', 'Stats DB'])
       }
       properties {
         disableConcurrentBuilds()
