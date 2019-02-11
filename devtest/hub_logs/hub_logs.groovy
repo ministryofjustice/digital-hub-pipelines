@@ -1,7 +1,7 @@
 def job_script = readFileFromWorkspace("seedJob","devtest/hub_logs/hub_logs.pipeline_script")
 
 
-pipelineJob("Container Logs") {
+pipelineJob("View Container Logs") {
   description("View running container logs")
 
   logRotator {
