@@ -1,4 +1,4 @@
-def job_script = readFileFromWorkspace("seedJob","devtest/hub_image_transfer.pipeline_script")
+def job_script = readFileFromWorkspace("seedJob","devtest/hub_deploy/hub_image_transfer.pipeline_script")
 
 
 pipelineJob("Transfer new docker images to a prison before a release") {
