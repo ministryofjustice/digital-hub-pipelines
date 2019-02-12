@@ -1,26 +1,23 @@
 node {
-  withCredentials([sshUserPrivateKey(credentialsId: "29c48f15-66b3-4a8c-b391-60782af72251", keyFileVariable: 'keyfile')]) {
-    stage('Log transfer') {
-      sh """
-        set +e
-
-        if [ "${params.Site}" = "Staging" ]; then
-          ssh_host="digital-hub-stage.hmpps.dsd.io"
-        else
-          ssh_host="${params.Site}.mycloudgateway.co.uk"
-        fi
-
-        if [ "${params.Tail}" = "true" ]; then
-          echo "Tailing container logs for ${params.Container} at ${params.Site}"
-          timeout 15m ssh -i "${keyfile}" -oStrictHostKeyChecking=no \${ssh_host} 'sudo docker logs -t -f --tail 30 ${params.Container}'
-          if [ "\${?}" = "124" ]; then
-            exit 0
-          fi
-        else
-          echo "Showing the last sixty minutes of logs for ${params.Container} at ${params.Site}"
-          ssh -i "${keyfile}" -oStrictHostKeyChecking=no \${ssh_host} 'sudo docker logs -t --since 60m ${params.Container}'
-        fi
-      """
+    stage('Transfer database') {
+        withCredentials([
+            sshUserPrivateKey(credentialsId: "29c48f15-66b3-4a8c-b391-60782af72251", keyFileVariable: 'keyfile')
+        ]) {
+            sh """
+                echo "Copying staging database to ${params.Site}"
+                ssh -i "${keyfile}" -oStrictHostKeyChecking=no digital-hub-stage.hmpps.dsd.io \"sudo docker exec hub-db bash -c 'mysqldump -p\\\${MYSQL_ROOT_PASSWORD} hubdb'\" \
+                | ssh -i "${keyfile}" -oStrictHostKeyChecking=no root@${params.Site}.mycloudgateway.co.uk \"cat - > /data/db_transfer/hub-db-\$(date +%Y%m%d).sql\"
+            """
+        }
     }
-  }
+    
+    stage('Prune Old DB Transfer Files') {
+        withCredentials([
+            sshUserPrivateKey(credentialsId: "29c48f15-66b3-4a8c-b391-60782af72251", keyFileVariable: 'keyfile')
+        ]) {
+            sh """
+                ssh -q -i "${keyfile}" root@${params.Site}.mycloudgateway.co.uk \"find /data/db_transfer/ -mtime +30 -exec rm -f {} \\;\"
+            """
+        }
+    }
 }
