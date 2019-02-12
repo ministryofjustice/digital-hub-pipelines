@@ -3,6 +3,10 @@ node {
 		prison = params.Prison.toLowerCase()
 		
 		withCredentials([
+        string(credentialsId: 'az_vault_mysql-root-pass', variable: 'mysql_root_pass'),
+		string(credentialsId: 'az_vault_mysql-user-pass', variable: 'mysql_user_pass'),
+		string(credentialsId: 'az_vault_matomo-mysql-root-pass', variable: 'matomo_mysql_root_pass'),
+		string(credentialsId: 'az_vault_matomo-mysql-user-pass', variable: 'matomo_mysql_user_pass'),
 		sshUserPrivateKey(credentialsId: "29c48f15-66b3-4a8c-b391-60782af72251", keyFileVariable: 'keyfile')
 	]) {
 	    	stage('Asset transfer') {
@@ -10,7 +14,7 @@ node {
 				echo "Restarting containers in ${prison}"
 				sh """	
 					scp -i "${keyfile}" -oStrictHostKeyChecking=no docker-compose.yml root@${prison}.mycloudgateway.co.uk:
-					ssh -i "${keyfile}" -oStrictHostKeyChecking=no root@${prison}.mycloudgateway.co.uk "docker-compose restart"
+					ssh -i "${keyfile}" -oSendEnv=mysql_root_pass -oSendEnv=mysql_user_pass -oSendEnv=matomo_mysql_root_pass -oSendEnv=matomo_mysql_user_pass -oStrictHostKeyChecking=no root@${prison}.mycloudgateway.co.uk "docker-compose restart"
 				"""	
 				echo "Restarted containers in ${prison}"
 			}
