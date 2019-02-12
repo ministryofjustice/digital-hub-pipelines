@@ -49,12 +49,13 @@ node("docker-client") {
 			]) {
 			    stage('Asset transfer') {
 					echo "Moving ${image} to ${params.Prison}"
-					
+
 					sh """
-					    docker -H tcp://10.0.1.4:2375 login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+						docker -H tcp://10.0.1.4:2375 login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+						docker -H tcp://10.0.1.4:2375 pull ${image}
 						docker -H tcp://10.0.1.4:2375 save ${image} | ssh -i "${keyfile}" -oStrictHostKeyChecking=no root@${params.Prison}.mycloudgateway.co.uk "docker load"
-					"""		
-					
+					"""
+
 					echo "Moved ${params.Component} to ${params.Prison}"
 				}
 			}
