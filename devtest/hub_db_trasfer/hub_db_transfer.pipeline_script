@@ -5,7 +5,7 @@ node {
         ]) {
             sh """
                 echo "Copying staging database to ${params.Site}"
-                ssh -i "${keyfile}" -oStrictHostKeyChecking=no digital-hub-stage.hmpps.dsd.io \"sudo docker exec hub-db bash -c 'mysqldump -p\\\${MYSQL_ROOT_PASSWORD} hubdb'\" \
+                ssh -i "${keyfile}" -oStrictHostKeyChecking=no digital-hub-stage.hmpps.dsd.io \"sudo docker exec hub-db bash -c 'mysqldump -p\\\\\${MYSQL_ROOT_PASSWORD} hubdb'\" \
                 | ssh -i "${keyfile}" -oStrictHostKeyChecking=no root@${params.Site}.mycloudgateway.co.uk \"cat - > /data/db_transfer/hub-db-\$(date +%Y%m%d).sql\"
             """
         }
