@@ -1,5 +1,6 @@
 node("docker-client") {
 	image = "hub-node"
+	sshHost = ""
 			stage('Clone Digital Hub repository') {
 				script {
 					switch(params.Component) {
@@ -40,7 +41,16 @@ node("docker-client") {
 			}
 			stage('debug') {
 				echo "${params.Component} / ${params.Prison}"
-				echo "${image} / ${url}"
+				
+				script {
+					if (url != "staging") {
+						sshHost = "root@${url}.mycloudgateway.co.uk"
+					} else {
+						sshHost = "jenkins@digital-hub-stage.hmpps.dsd.io"
+					}
+				}
+				
+				echo "${image} / ${url} / ${sshHost}"
 			}
 			withCredentials([
 			                string(credentialsId: 'az_vault_dockerhub_username_secret', variable: 'DOCKER_USER'),
@@ -53,7 +63,7 @@ node("docker-client") {
 					sh """
 						docker -H tcp://10.0.1.4:2375 login -u ${DOCKER_USER} -p ${DOCKER_PASS}
 						docker -H tcp://10.0.1.4:2375 pull ${image}
-						docker -H tcp://10.0.1.4:2375 save ${image} | ssh -i "${keyfile}" -oStrictHostKeyChecking=no root@${params.Prison}.mycloudgateway.co.uk "docker load"
+						docker -H tcp://10.0.1.4:2375 save ${image} | ssh -i "${keyfile}" -oStrictHostKeyChecking=no ${sshHost} "docker load"
 					"""
 
 					echo "Moved ${params.Component} to ${params.Prison}"
