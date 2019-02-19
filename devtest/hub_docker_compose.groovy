@@ -7,7 +7,7 @@ pipelineJob("Release new software in a Prison") {
 	}
 
 	parameters {
-		choiceParam('Prison', ['Staging', 'Berwyn', 'Wayland'])
+		choiceParam('Site', ['Staging', 'Berwyn', 'Wayland'])
 	}
 	definition {
 		cps {
