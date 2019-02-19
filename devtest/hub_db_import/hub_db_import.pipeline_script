@@ -1,9 +1,11 @@
 node {
-    withCredentials([sshUserPrivateKey(credentialsId: "29c48f15-66b3-4a8c-b391-60782af72251", keyFileVariable: 'keyfile')]) {
+    withCredentials([
+        string(credentialsId: 'az_vault_mysql-root-pass', variable: 'MYSQL_ROOT_PASSWORD'),
+        sshUserPrivateKey(credentialsId: "29c48f15-66b3-4a8c-b391-60782af72251", keyFileVariable: 'keyfile')]) {
         stage('Import Database') {
             sh """
                 ssh -q -i "${keyfile}" root@${params.Site}.mycloudgateway.co.uk \
-                \"cat /data/db_transfer/hub-db-\$(date +%Y%m%d).sql | docker exec -i hub-db bash -c 'mysql -p\\\${MYSQL_ROOT_PASSWORD} hubdb'\"
+                \"cat /data/db_transfer/hub-db-\$(date +%Y%m%d).sql | docker exec -i hub-db bash -c 'mysql -p\\\\\${MYSQL_ROOT_PASSWORD} hubdb'\"
             """
         }
     }
