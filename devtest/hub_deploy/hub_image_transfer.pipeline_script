@@ -62,8 +62,10 @@ node("docker-client") {
 
 					sh """
 						docker -H tcp://10.0.1.4:2375 login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-						docker -H tcp://10.0.1.4:2375 pull ${image}
-						docker -H tcp://10.0.1.4:2375 save ${image} | ssh -i "${keyfile}" -oStrictHostKeyChecking=no ${sshHost} "docker load"
+						time docker -H tcp://10.0.1.4:2375 pull ${image}
+						time docker -H tcp://10.0.1.4:2375 save ${image} -o image.tar
+						time cat image.tar | ssh -i "${keyfile}" -oStrictHostKeyChecking=no ${sshHost} "docker load"
+						rm image.tar
 					"""
 
 					echo "Moved ${params.Component} to ${params.Prison}"
