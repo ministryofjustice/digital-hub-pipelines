@@ -61,6 +61,7 @@ node("docker-client") {
 					echo "Moving ${image} to ${params.Prison}"
 
 					sh """
+						docker system prune
 						docker -H tcp://10.0.1.4:2375 login -u ${DOCKER_USER} -p ${DOCKER_PASS}
 						time docker -H tcp://10.0.1.4:2375 pull ${image}
 						time docker -H tcp://10.0.1.4:2375 save ${image} -o image.tar
