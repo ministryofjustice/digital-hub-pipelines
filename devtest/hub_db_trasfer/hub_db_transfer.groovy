@@ -1,17 +1,15 @@
-def job_script = readFileFromWorkspace("seedJob","devtest/hub_db_trasfer/hub_db_trasfer.pipeline_script")
+def job_script = readFileFromWorkspace("seedJob","devtest/hub_db_trasfer/hub_db_transfer.pipeline_script")
 
 
-pipelineJob("View Container Logs") {
-  description("View running container logs")
+pipelineJob("Transfer staging DB to production") {
+  description("Staging holds the most up to date instance of the database.  This transfers it to the target site.")
 
   logRotator {
-    numToKeep(4)
+    numToKeep(10)
   }
 
   parameters {
-    choiceParam('Site', ['Staging', 'Berwyn', 'Wayland'])
-    choiceParam('Container', ['hub-node', 'hub-be'])
-    booleanParam('Tail', false)
+    choiceParam('Site', ['Berwyn', 'Wayland'])
   }
 
   properties {

@@ -1,11 +1,13 @@
 node {
     stage('Transfer database') {
         withCredentials([
+            
+		string(credentialsId: 'az_vault_mysql-root-pass', variable: 'MYSQL_ROOT_PASSWORD'),
             sshUserPrivateKey(credentialsId: "29c48f15-66b3-4a8c-b391-60782af72251", keyFileVariable: 'keyfile')
         ]) {
             sh """
                 echo "Copying staging database to ${params.Site}"
-                ssh -i "${keyfile}" -oStrictHostKeyChecking=no digital-hub-stage.hmpps.dsd.io \"sudo docker exec hub-db bash -c 'mysqldump -p\\\${MYSQL_ROOT_PASSWORD} hubdb'\" \
+                ssh -i "${keyfile}" -oStrictHostKeyChecking=no digital-hub-stage.hmpps.dsd.io \"sudo docker exec hub-db bash -c 'mysqldump -p\\\\\${MYSQL_ROOT_PASSWORD} hubdb'\" \
                 | ssh -i "${keyfile}" -oStrictHostKeyChecking=no root@${params.Site}.mycloudgateway.co.uk \"cat - > /data/db_transfer/hub-db-\$(date +%Y%m%d).sql\"
             """
         }
