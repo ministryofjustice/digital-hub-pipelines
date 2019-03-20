@@ -41,7 +41,7 @@ node("docker-client") {
 			}
 			stage('debug') {
 				echo "${params.Component} / ${params.Prison}"
-				
+
 				script {
 					if (url != "staging") {
 						sshHost = "root@${url}.mycloudgateway.co.uk"
@@ -49,7 +49,7 @@ node("docker-client") {
 						sshHost = "jenkins@digital-hub-stage.hmpps.dsd.io"
 					}
 				}
-				
+
 				echo "${image} / ${url} / ${sshHost}"
 			}
 			withCredentials([
@@ -61,7 +61,7 @@ node("docker-client") {
 					echo "Moving ${image} to ${params.Prison}"
 
 					sh """
-						docker system prune
+						docker system prune -f
 						docker -H tcp://10.0.1.4:2375 login -u ${DOCKER_USER} -p ${DOCKER_PASS}
 						time docker -H tcp://10.0.1.4:2375 pull ${image}
 						time docker -H tcp://10.0.1.4:2375 save ${image} -o image.tar
