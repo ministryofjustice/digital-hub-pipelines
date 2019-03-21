@@ -12,16 +12,16 @@ node {
         git branch: "master", credentialsId: 'github_deploy_key', url: 'git@github.com:ministryofjustice/digital-hub.git'
         echo "Restarting containers in ${site}"
         wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
-            sh ""
+            sh """
               if [ "${site}" = "staging" ]; then
                 ssh_host="jenkins@digital-hub-stage.hmpps.dsd.io"
               else
                 ssh_host="root@${site}.mycloudgateway.co.uk"
               fi
 
-              if [ "${site}" = "Berwyn" ]; then
+              if [ "${site}" = "berwyn" ]; then
                 export MATOMO_TOKEN="${HUB_MATOMO_TOKEN_BERWYN}"
-              elif [ "${site}" = "Wayland" ]; then
+              elif [ "${site}" = "wayland" ]; then
                 export MATOMO_TOKEN="${HUB_MATOMO_TOKEN_WAYLAND}"
               fi
 
