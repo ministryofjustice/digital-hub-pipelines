@@ -1,29 +1,40 @@
 node {
-	stage('Releasing a new container to a prison') {
-		site = params.Site.toLowerCase()
-		
-		withCredentials([
-		string(credentialsId: 'az_vault_mysql-user-pass', variable: 'HUB_DB_ENV_MYSQL_PASSWORD'),
-		sshUserPrivateKey(credentialsId: "29c48f15-66b3-4a8c-b391-60782af72251", keyFileVariable: 'keyfile')
-	]) {
-	    	stage('Asset transfer') {
-				git branch: "master", credentialsId: 'github_deploy_key', url: 'git@github.com:ministryofjustice/digital-hub.git'
-				echo "Restarting containers in ${site}"
-				wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
-    				sh """	
-    				    if [ "${site}" = "staging" ]; then
-                            ssh_host="jenkins@digital-hub-stage.hmpps.dsd.io"
-                        else
-                            ssh_host="root@${site}.mycloudgateway.co.uk"
-                        fi
-                        
-    					scp -i "${keyfile}" -oStrictHostKeyChecking=no docker-compose.yml \${ssh_host}:
-    					scp -i "${keyfile}" -oStrictHostKeyChecking=no sites/docker-compose.${site}.yml \${ssh_host}:
-    					ssh -i "${keyfile}" -oSendEnv=HUB_DB_ENV_MYSQL_PASSWORD -oStrictHostKeyChecking=no \${ssh_host} "docker-compose -f docker-compose.yml -f docker-compose.${site}.yml up -d"
-    				"""	
-				}
-				echo "Restarted containers in ${site}"
-			}
-		}
-	}
+  stage('Releasing a new container to a prison') {
+    site = params.Site.toLowerCase()
+
+    withCredentials([
+    string(credentialsId: 'az_vault_mysql-user-pass', variable: 'HUB_DB_ENV_MYSQL_PASSWORD'),
+    string(credentialsId: 'az_vault_matomo-token-berwyn', variable: 'HUB_MATOMO_TOKEN_BERWYN'),
+    string(credentialsId: 'az_vault_matomo-token-wayland', variable: 'HUB_MATOMO_TOKEN_WAYLAND'),
+    sshUserPrivateKey(credentialsId: "29c48f15-66b3-4a8c-b391-60782af72251", keyFileVariable: 'keyfile')
+  ]) {
+        stage('Asset transfer') {
+        git branch: "master", credentialsId: 'github_deploy_key', url: 'git@github.com:ministryofjustice/digital-hub.git'
+        echo "Restarting containers in ${site}"
+        wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
+            sh ""
+              if [ "${site}" = "staging" ]; then
+                ssh_host="jenkins@digital-hub-stage.hmpps.dsd.io"
+              else
+                ssh_host="root@${site}.mycloudgateway.co.uk"
+              fi
+
+              if [ "${site}" = "Berwyn" ]; then
+                export MATOMO_TOKEN="${HUB_MATOMO_TOKEN_BERWYN}"
+              elif [ "${site}" = "Wayland" ]; then
+                export MATOMO_TOKEN="${HUB_MATOMO_TOKEN_WAYLAND}"
+              fi
+
+              scp -i "${keyfile}" -oStrictHostKeyChecking=no docker-compose.yml \${ssh_host}:
+              scp -i "${keyfile}" -oStrictHostKeyChecking=no sites/docker-compose.${site}.yml \${ssh_host}:
+              ssh -i "${keyfile}" \
+                -oSendEnv=HUB_DB_ENV_MYSQL_PASSWORD \
+                -oSendEnv=MATOMO_TOKEN \
+                -oStrictHostKeyChecking=no \${ssh_host} "docker-compose -f docker-compose.yml -f docker-compose.${site}.yml up -d"
+            """
+        }
+        echo "Restarted containers in ${site}"
+      }
+    }
+  }
 }
