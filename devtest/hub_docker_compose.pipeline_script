@@ -6,6 +6,8 @@ node {
     string(credentialsId: 'az_vault_mysql-user-pass', variable: 'HUB_DB_ENV_MYSQL_PASSWORD'),
     string(credentialsId: 'az_vault_matomo-token-berwyn', variable: 'HUB_MATOMO_TOKEN_BERWYN'),
     string(credentialsId: 'az_vault_matomo-token-wayland', variable: 'HUB_MATOMO_TOKEN_WAYLAND'),
+    string(credentialsId: 'az_vault_matomo-mysql-user-pass', variable: 'HUB_MATOMO_MYSQL_USER_PASSWORD'),
+    string(credentialsId: 'az_vault_matomo-mysql-root-pass', variable: 'HUB_MATOMO_MYSQL_ROOT_PASSWORD'),
     sshUserPrivateKey(credentialsId: "29c48f15-66b3-4a8c-b391-60782af72251", keyFileVariable: 'keyfile')
   ]) {
         stage('Asset transfer') {
@@ -30,6 +32,8 @@ node {
               ssh -i "${keyfile}" \
                 -oSendEnv=HUB_DB_ENV_MYSQL_PASSWORD \
                 -oSendEnv=MATOMO_TOKEN \
+                -oSendEnv=HUB_MATOMO_MYSQL_USER_PASSWORD \
+                -oSendEnv=HUB_MATOMO_MYSQL_ROOT_PASSWORD \
                 -oStrictHostKeyChecking=no \${ssh_host} "docker-compose -f docker-compose.yml -f docker-compose.${site}.yml up -d"
             """
         }
