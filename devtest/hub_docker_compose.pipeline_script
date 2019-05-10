@@ -28,14 +28,18 @@ node {
                 export MATOMO_TOKEN="${HUB_MATOMO_TOKEN_WAYLAND}"
               fi
 
+              export HUB_MATOMO_MYSQL_USER_PASSWORD="${HUB_MATOMO_MYSQL_USER_PASSWORD}"
+              export HUB_MATOMO_MYSQL_ROOT_PASSWORD="${HUB_MATOMO_MYSQL_ROOT_PASSWORD}"
+              export HUB_MATOMO_MYSQL_USER_USERNAME="${HUB_MATOMO_MYSQL_USER_USERNAME}"   
+
               scp -i "${keyfile}" -oStrictHostKeyChecking=no docker-compose.yml \${ssh_host}:
               scp -i "${keyfile}" -oStrictHostKeyChecking=no sites/docker-compose.${site}.yml \${ssh_host}:
               ssh -i "${keyfile}" \
                 -oSendEnv=HUB_DB_ENV_MYSQL_PASSWORD \
                 -oSendEnv=MATOMO_TOKEN \
-                -oSendEnv=${HUB_MATOMO_MYSQL_USER_PASSWORD} \
-                -oSendEnv=${HUB_MATOMO_MYSQL_ROOT_PASSWORD} \
-                -oSendEnv=${HUB_MATOMO_MYSQL_USER_USERNAME} \
+                -oSendEnv=HUB_MATOMO_MYSQL_USER_PASSWORD \
+                -oSendEnv=HUB_MATOMO_MYSQL_ROOT_PASSWORD \
+                -oSendEnv=HUB_MATOMO_MYSQL_USER_USERNAME \
                 -oStrictHostKeyChecking=no \${ssh_host} "docker-compose -f docker-compose.yml -f docker-compose.${site}.yml up -d"
             """
         }
