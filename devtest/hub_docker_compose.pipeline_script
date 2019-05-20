@@ -9,6 +9,7 @@ node {
     string(credentialsId: 'az_vault_matomo-mysql-user-pass', variable: 'HUB_MATOMO_MYSQL_USER_PASSWORD'),
     string(credentialsId: 'az_vault_matomo-mysql-root-pass', variable: 'HUB_MATOMO_MYSQL_ROOT_PASSWORD'),
     string(credentialsId: 'az_vault_matomo-mysql-user-username', variable: 'HUB_MATOMO_MYSQL_USER_USERNAME'),
+    string(credentialsId: 'az_vault_nomis-staging-api-key', variable: 'HUB_NOMIS_STAGING_API_KEY'),
     sshUserPrivateKey(credentialsId: "29c48f15-66b3-4a8c-b391-60782af72251", keyFileVariable: 'keyfile')
   ]) {
         stage('Asset transfer') {
@@ -18,8 +19,10 @@ node {
             sh """
               if [ "${site}" = "staging" ]; then
                 ssh_host="jenkins@digital-hub-stage.hmpps.dsd.io"
+                export HUB_NOMIS_API_KEY="${HUB_NOMIS_STAGING_API_KEY}"
               else
                 ssh_host="root@${site}.mycloudgateway.co.uk"
+                export HUB_NOMIS_API_KEY="UNSET"
               fi
 
               if [ "${site}" = "berwyn" ]; then
@@ -40,6 +43,7 @@ node {
                 -oSendEnv=HUB_MATOMO_MYSQL_USER_PASSWORD \
                 -oSendEnv=HUB_MATOMO_MYSQL_ROOT_PASSWORD \
                 -oSendEnv=HUB_MATOMO_MYSQL_USER_USERNAME \
+                -oSendEnv=HUB_NOMIS_API_KEY \
                 -oStrictHostKeyChecking=no \${ssh_host} "docker-compose -f docker-compose.yml -f docker-compose.${site}.yml up -d"
             """
         }
