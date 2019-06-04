@@ -19,10 +19,10 @@ node {
             sh """
               if [ "${site}" = "staging" ]; then
                 ssh_host="jenkins@digital-hub-stage.hmpps.dsd.io"
-                export HUB_NOMIS_API_KEY="${HUB_NOMIS_STAGING_API_KEY}"
+                export NOMIS_API_TOKEN="${HUB_NOMIS_STAGING_API_KEY}"
               else
                 ssh_host="root@${site}.mycloudgateway.co.uk"
-                export HUB_NOMIS_API_KEY="UNSET"
+                export NOMIS_API_TOKEN="UNSET"
               fi
 
               if [ "${site}" = "berwyn" ]; then
@@ -43,7 +43,7 @@ node {
                 -oSendEnv=HUB_MATOMO_MYSQL_USER_PASSWORD \
                 -oSendEnv=HUB_MATOMO_MYSQL_ROOT_PASSWORD \
                 -oSendEnv=HUB_MATOMO_MYSQL_USER_USERNAME \
-                -oSendEnv=HUB_NOMIS_API_KEY \
+                -oSendEnv=NOMIS_API_TOKEN \
                 -oStrictHostKeyChecking=no \${ssh_host} "docker-compose -f docker-compose.yml -f docker-compose.${site}.yml up -d"
             """
         }
