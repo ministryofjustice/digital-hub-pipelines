@@ -11,7 +11,7 @@ node("docker-client") {
 					    image = "mojdigitalstudio/digital-hub-be"
 					    break
 					  case "DB":
-					    image = "mojdigitalstudio/digital-hub-db"
+					    image = "mariadb"
 					    break
 					  case "Stats":
 					    image = "matomo:3-apache"
