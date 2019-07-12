@@ -13,9 +13,9 @@ node("docker-client") {
 					  case "DB":
 					    image = "mariadb"
 					    break
-					  case "Stats":
-					    image = "matomo:3-apache"
-					    break
+					  case "Matomo":
+					    image = "digital-hub-matomo:latest"
+					    break						
 					  case "Stats DB":
 					    image = "mariadb"
 					    break
@@ -61,6 +61,9 @@ node("docker-client") {
 			withCredentials([
 			                string(credentialsId: 'az_vault_dockerhub_username_secret', variable: 'DOCKER_USER'),
 			                string(credentialsId: 'az_vault_dockerhub_password_secret', variable: 'DOCKER_PASS'),
+			                string(credentialsId: 'az_vault_acr-username-secret', variable: 'AZURE_DOCKER_USER'),
+			                string(credentialsId: 'az_vault_acr-password-secret', variable: 'AZURE_DOCKER_PASS'),
+			                string(credentialsId: 'az_vault_acr-repo-secret', variable: 'AZURE_DOCKER_REPO'),
 			                sshUserPrivateKey(credentialsId: "29c48f15-66b3-4a8c-b391-60782af72251", keyFileVariable: 'keyfile')
 			]) {
 			    stage('Asset transfer') {
@@ -68,7 +71,12 @@ node("docker-client") {
 
 					sh """
 						docker system prune -f
-						docker -H tcp://10.0.1.4:2375 login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+						if [ "${image}" = "digital-hub-matomo:latest"]
+							docker -H tcp://10.0.1.4:2375 login -u ${AZURE_DOCKER_USER} -p ${AZURE_DOCKER_PASS} ${AZURE_DOCKER_REPO}
+							image="${AZURE_DOCKER_REPO}/digital-hub-matomo:latest"
+						else
+							docker -H tcp://10.0.1.4:2375 login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+						fi
 						time docker -H tcp://10.0.1.4:2375 pull ${image}
 						time docker -H tcp://10.0.1.4:2375 save ${image} -o image.tar
 						time cat image.tar | ssh -i "${keyfile}" -oStrictHostKeyChecking=no ${sshHost} "docker load"
