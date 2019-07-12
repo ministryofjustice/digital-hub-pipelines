@@ -70,16 +70,18 @@ node("docker-client") {
 					echo "Moving ${image} to ${params.Prison}"
 
 					sh """
+						DOCKER_IMAGE="${image}"
+
 						docker system prune -f
-						if [ "${image}" = "digital-hub-matomo:latest"]
+						if [ "$DOCKER_IMAGE" = "digital-hub-matomo:latest"]
 						then
 							docker -H tcp://10.0.1.4:2375 login -u ${AZURE_DOCKER_USER} -p ${AZURE_DOCKER_PASS} ${AZURE_DOCKER_REPO}
-							image="${AZURE_DOCKER_REPO}/digital-hub-matomo:latest"
+							DOCKER_IMAGE="${AZURE_DOCKER_REPO}/digital-hub-matomo:latest"
 						else
 							docker -H tcp://10.0.1.4:2375 login -u ${DOCKER_USER} -p ${DOCKER_PASS}
 						fi
-						time docker -H tcp://10.0.1.4:2375 pull ${image}
-						time docker -H tcp://10.0.1.4:2375 save ${image} -o image.tar
+						time docker -H tcp://10.0.1.4:2375 pull "$DOCKER_IMAGE"
+						time docker -H tcp://10.0.1.4:2375 save "$DOCKER_IMAGE" -o image.tar
 						time cat image.tar | ssh -i "${keyfile}" -oStrictHostKeyChecking=no ${sshHost} "docker load"
 						rm image.tar
 					"""
