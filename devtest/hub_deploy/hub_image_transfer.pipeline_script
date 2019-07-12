@@ -70,13 +70,13 @@ node("docker-client") {
 					echo "Moving ${image} to ${params.Prison}"
 
 					sh """
-						DOCKER_IMAGE="${image}"
+						export DOCKER_IMAGE="${image}"
 
 						docker system prune -f
 						if [ "$DOCKER_IMAGE" = "digital-hub-matomo:latest"]
 						then
 							docker -H tcp://10.0.1.4:2375 login -u ${AZURE_DOCKER_USER} -p ${AZURE_DOCKER_PASS} ${AZURE_DOCKER_REPO}
-							DOCKER_IMAGE="${AZURE_DOCKER_REPO}/digital-hub-matomo:latest"
+							export DOCKER_IMAGE="${AZURE_DOCKER_REPO}/digital-hub-matomo:latest"
 						else
 							docker -H tcp://10.0.1.4:2375 login -u ${DOCKER_USER} -p ${DOCKER_PASS}
 						fi
