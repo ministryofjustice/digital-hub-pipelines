@@ -10,7 +10,7 @@ node {
     string(credentialsId: 'az_vault_matomo-mysql-root-pass', variable: 'HUB_MATOMO_MYSQL_ROOT_PASSWORD'),
     string(credentialsId: 'az_vault_matomo-mysql-user-username', variable: 'HUB_MATOMO_MYSQL_USER_USERNAME'),
     string(credentialsId: 'az_vault_nomis-staging-api-key', variable: 'HUB_NOMIS_STAGING_API_KEY'),
-    string(credentialsId: 'az_vault_nomis-production-api-key', variable: 'HUB_NOMIS_PRODUCTION_API_KEY'),
+    string(credentialsId: 'az_vault_nomis-prod-api-key', variable: 'HUB_NOMIS_PRODUCTION_API_KEY'),
     sshUserPrivateKey(credentialsId: "29c48f15-66b3-4a8c-b391-60782af72251", keyFileVariable: 'keyfile')
   ]) {
         stage('Asset transfer') {
